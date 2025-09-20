@@ -1,1 +1,10 @@
-// placeholder
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+}
+nav a {
+  margin: 0 10px;
+  text-decoration: none;
+  color: #333;
+}
