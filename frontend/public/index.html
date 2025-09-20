@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SocialSphere – Social Media App</title>
+  <style>
+    /* 🌐 General Styles */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #e5e7eb;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 900px;
+      margin: 30px auto;
+    }
+
+    /* 🃏 Card Styles */
+    .card {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 25px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    /* ✏️ Inputs & Buttons */
+    textarea, input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+      transition: 0.2s ease;
+    }
+    textarea:focus, input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 6px rgba(59,130,246,0.3);
+    }
+
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: background 0.3s, transform 0.1s;
+    }
+    button:hover {
+      background: #2563eb;
+      transform: scale(1.05);
+    }
+
+    /* 📝 Posts */
+    .post {
+      border-bottom: 1px solid #eee;
+      padding: 15px 0;
+    }
+    .post:last-child {
+      border-bottom: none;
+    }
+    .post p {
+      margin: 5px 0;
+      font-size: 1rem;
+    }
+
+    /* 🎭 Actions */
+    .actions {
+      margin: 8px 0;
+    }
+    .actions button {
+      margin-right: 10px;
+    }
+    .actions .delete {
+      background: #ef4444;
+    }
+    .actions .delete:hover {
+      background: #dc2626;
+    }
+
+    /* 💬 Comments */
+    .comment-box {
+      margin-top: 12px;
+      padding-left: 20px;
+    }
+    .comment {
+      font-size: 0.9rem;
+      padding: 6px 8px;
+      margin: 4px 0;
+      background: #f9fafb;
+      border-radius: 8px;
+      border: 1px solid #eee;
+    }
+
+    /* 👤 Profile */
+    #profileDisplay {
+      margin-top: 10px;
+      font-size: 1rem;
+      background: #f3f4f6;
+      padding: 8px 12px;
+      border-radius: 8px;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <header>🌐 SocialSphere</header>
+
+  <div class="container">
+    <!-- Create Post -->
+    <div class="card">
+      <h3>✨ Create a Post</h3>
+      <textarea id="postContent" placeholder="What's on your mind?"></textarea>
+      <button onclick="createPost()">Post</button>
+    </div>
+
+    <!-- Posts Section -->
+    <div class="card" id="postsContainer">
+      <h3>📰 Posts</h3>
+    </div>
+
+    <!-- Profile Update -->
+    <div class="card">
+      <h3>👤 Update Profile</h3>
+      <input type="text" id="profileName" placeholder="Enter new profile name">
+      <button onclick="updateProfile()">Update</button>
+      <p id="profileDisplay">👤 Current User: <b>Guest</b></p>
+    </div>
+  </div>
+
+  <script>
+    let posts = [];
+    let currentUser = "Guest";
+
+    function createPost() {
+      const content = document.getElementById("postContent").value;
+      if(content.trim() === "") return alert("Post cannot be empty!");
+      const post = {
+        id: Date.now(),
+        user: currentUser,
+        content,
+        likes: 0,
+        comments: []
+      };
+      posts.unshift(post);
+      document.getElementById("postContent").value = "";
+      renderPosts();
+    }
+
+    function renderPosts() {
+      const container = document.getElementById("postsContainer");
+      container.innerHTML = "<h3>📰 Posts</h3>";
+      posts.forEach(post => {
+        const postEl = document.createElement("div");
+        postEl.className = "post";
+        postEl.innerHTML = `
+          <p><b>${post.user}</b>: ${post.content}</p>
+          <div class="actions">
+            <button onclick="likePost(${post.id})">👍 ${post.likes}</button>
+            <button onclick="deletePost(${post.id})" class="delete">🗑 Delete</button>
+          </div>
+          <div class="comment-box">
+            <input type="text" placeholder="Add a comment..." 
+                   onkeypress="if(event.key==='Enter') addComment(${post.id}, this)">
+            ${post.comments.map(c => `<div class="comment">💬 ${c}</div>`).join("")}
+          </div>
+        `;
+        container.appendChild(postEl);
+      });
+    }
+
+    function likePost(id) {
+      const post = posts.find(p => p.id === id);
+      if(post) post.likes++;
+      renderPosts();
+    }
+
+    function deletePost(id) {
+      posts = posts.filter(p => p.id !== id);
+      renderPosts();
+    }
+
+    function addComment(postId, input) {
+      const comment = input.value.trim();
+      if(comment === "") return;
+      const post = posts.find(p => p.id === postId);
+      if(post) post.comments.push(`${currentUser}: ${comment}`);
+      input.value = "";
+      renderPosts();
+    }
+
+    function updateProfile() {
+      const name = document.getElementById("profileName").value.trim();
+      if(name === "") return alert("Name cannot be empty!");
+      currentUser = name;
+      document.getElementById("profileDisplay").innerHTML = `👤 Current User: <b>${currentUser}</b>`;
+      document.getElementById("profileName").value = "";
+    }
+  </script>
+</body>
+</html>
